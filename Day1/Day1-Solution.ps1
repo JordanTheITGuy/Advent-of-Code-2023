@@ -21,33 +21,20 @@ Function Update-DataSet{
     param(
         [object]$dataset
     )    
-    $dataset = $dataset.replace('one',1)
-    $dataset = $dataset.replace('two',2)
-    $dataset = $dataset.replace('three',3)
-    $dataset = $dataset.replace('four',4)
-    $dataset = $dataset.replace('five',5)
-    $dataset = $dataset.replace('six',6)
-    $dataset = $dataset.replace('seven',7)
-    $dataset = $dataset.replace('eight',8)
-    $dataset = $dataset.replace('nine',9)
+    #What if I did something stupid.
+    $dataset = $dataset.replace('one',"o1e")
+    $dataset = $dataset.replace('two',"t2o")
+    $dataset = $dataset.replace('three',"t3e")
+    $dataset = $dataset.replace('four',"f4r")
+    $dataset = $dataset.replace('five',"f5e")
+    $dataset = $dataset.replace('six',"s6x")
+    $dataset = $dataset.replace('seven',"s7n")
+    $dataset = $dataset.replace('eight',"e8t")
+    $dataset = $dataset.replace('nine',"n9e")
     return $dataset
 }
 
-$content = Get-Content .\input.txt 
-
-$content = @(
-'two1nine'
-'eightwothree'
-'abcone2threexyz'
-'xtwone3four'
-'4nineeightseven2'
-'zoneight234'
-'7pqrstsixteen'
-)
-
-
-$content | foreach-Object {Convert-NumericWordToNumber -word $_}
-
+$content = Get-Content .\input.txt
 $updatedContent = Update-DataSet -dataset $content
 $answer = $updatedContent | foreach-Object {Get-FirstAndLastDigit -str $_}
 $sum = ($answer | Measure-Object -Sum).Sum
