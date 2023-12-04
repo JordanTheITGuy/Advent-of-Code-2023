@@ -1,4 +1,6 @@
-function Search-NumberGroups{
+#This was a massive waste of time... but interesting? 
+
+function Search-NumberGroups{    
     [cmdletbinding()]
     param(
         [string]$sample
