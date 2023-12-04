@@ -1,13 +1,28 @@
+#TODO - Return the test location if a star was found
+#TODO - Recursively search the chain if a star is found using FULL check
+#TODO - Cleanup nonsense
+
+
+#Look for a STAR
 function Test-Symbol {
     param(
         [string]$char
     )
-    $symbolHunt = [regex]'[^a-zA-Z0-9.\s]'
+    $symbolHunt = [regex]'\*'
     if($symbolHunt.IsMatch($char)){
         return $true
     }
 }
 
+#Is it a number?
+function Test-Number {
+    param(
+        [string]$value
+    )
+    return $value -match '^\d+$'
+}
+
+#Get all the number groups
 function Get-NumberGroup{
     param(
         [string]$line
@@ -21,7 +36,7 @@ function Get-NumberGroup{
         }
     }
 }
-
+#Look above for something
 function Check-Above{
     [cmdletbinding()]
     param(
@@ -44,7 +59,7 @@ function Check-Above{
         Write-verbose "Above is out of bounds"
     }
 }
-
+#Look below for something
 function Check-Below{
     [cmdletbinding()]
     param(
@@ -67,7 +82,7 @@ function Check-Below{
         Write-verbose "Below is out of bounds"
     }
 }
-
+#Look left and right for something
 function Check-LeftRight{
     [cmdletbinding()]
     param(
@@ -79,13 +94,31 @@ function Check-LeftRight{
     foreach($testLocation in $testLocations){
         if(Test-Symbol -char $fullData[$line][$testLocation]){
             Write-verbose -message "Found a touching symbol no need for tests"
-            return $true
+            return 
         }
     }
 }
 
-#part 1
-$fullData = Get-Content .\input.txt 
+function Full-Check{
+    [cmdletbinding()]
+    param(
+        [int]$index,
+        [int]$line,
+        [array]$fullData
+    )
+    if(Check-Above -index $index -line $line -fulldata $fullData){
+        if(Check-Below -index $index -line $line -fulldata $fullData){
+            if(Check-LeftRight -index $index -line $line -fulldata $fullData){
+                return $true
+            } 
+        }
+    }
+    else{
+        return $false
+    }
+}
+
+$fullData = Get-Content .\sample.txt
 $workingGroups = New-Object System.collections.Generic.list[string]
 For($line = 0; $line -lt $fullData.length; $line++){
     $numberGroups = Get-NumberGroup -line $fullData[$line]
@@ -93,15 +126,9 @@ For($line = 0; $line -lt $fullData.length; $line++){
         $i = $numberGroup.Location
         foreach($char in $numberGroup.fullnumber.ToCharArray()){    
         $size = $workingGroups.count
-            if(Check-Above -index $i -line $line -fulldata $fullData){
+            if(Full-Check  -index $i -line $line -fulldata $fullData){
                 $workingGroups.Add($numberGroup.fullnumber)
             }
-            elseif (Check-Below -index $i -line $line -fulldata $fullData) {
-                $workingGroups.Add($numberGroup.fullnumber)
-            }
-            elseif(Check-LeftRight -index $i -line $line -fulldata $fullData){
-                $workingGroups.Add($numberGroup.fullnumber)
-            } 
         $i++
         if($workingGroups.count -gt $size){
             break
@@ -109,4 +136,3 @@ For($line = 0; $line -lt $fullData.length; $line++){
         }
     }
 }
-$workingGroups | measure-object -sum | select -expandproperty sum
